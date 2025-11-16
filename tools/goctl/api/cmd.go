@@ -79,6 +79,7 @@ func init() {
 	goCmdFlags.BoolVar(&gogen.VarBoolWithTest, "test")
 	goCmdFlags.BoolVar(&gogen.VarBoolTypeGroup, "type-group")
 	goCmdFlags.StringVarWithDefaultValue(&gogen.VarStringStyle, "style", config.DefaultFormat)
+	goCmdFlags.StringVar(&gogen.VarStringExtend, "extend")
 
 	javaCmdFlags.StringVar(&javagen.VarStringDir, "dir")
 	javaCmdFlags.StringVar(&javagen.VarStringAPI, "api")

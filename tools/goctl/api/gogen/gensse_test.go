@@ -37,7 +37,7 @@ service Test {
 	assert.NoError(t, err)
 
 	// Generate code
-	err = DoGenProject(apiFile, dir, "gozero", false)
+	err = DoGenProject(apiFile, dir, "gozero", false, "")
 	assert.NoError(t, err)
 
 	// Read generated handler file
@@ -105,7 +105,7 @@ service Test {
 	assert.NoError(t, err)
 
 	// Generate code
-	err = DoGenProject(apiFile, dir, "gozero", false)
+	err = DoGenProject(apiFile, dir, "gozero", false, "")
 	assert.NoError(t, err)
 
 	// Read generated handler file

@@ -45,7 +45,9 @@ func genFile(c fileGenConfig) error {
 		}
 	}
 
-	t := template.Must(template.New(c.templateName).Parse(text))
+	t := template.Must(template.New(c.templateName).Funcs(template.FuncMap{
+		"upperFirst": upperFirst,
+	}).Parse(text))
 	buffer := new(bytes.Buffer)
 	err = t.Execute(buffer, c.data)
 	if err != nil {
@@ -231,4 +233,33 @@ func getDoc(doc string) string {
 	}
 
 	return "// " + strings.Trim(doc, "\"")
+}
+
+func parseToMap(s string) map[string]string {
+	result := make(map[string]string)
+	if s == "" {
+		return result
+	}
+
+	pairs := strings.Split(s, ",")
+	for _, p := range pairs {
+		kv := strings.SplitN(p, "=", 2)
+		if len(kv) != 2 {
+			continue // 忽略不合法的片段
+		}
+		key := strings.TrimSpace(kv[0])
+		value := strings.TrimSpace(kv[1])
+		if key != "" {
+			result[key] = value
+		}
+	}
+
+	return result
+}
+
+func upperFirst(s string) string {
+	if len(s) == 0 {
+		return s
+	}
+	return strings.ToUpper(s[:1]) + s[1:]
 }

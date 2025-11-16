@@ -24,10 +24,10 @@ var (
 	sseLogicTemplate string
 )
 
-func genLogic(dir, rootPkg, projectPkg string, cfg *config.Config, api *spec.ApiSpec) error {
+func genLogic(dir, rootPkg, projectPkg string, cfg *config.Config, api *spec.ApiSpec, extend string) error {
 	for _, g := range api.Service.Groups {
 		for _, r := range g.Routes {
-			err := genLogicByRoute(dir, rootPkg, projectPkg, cfg, g, r)
+			err := genLogicByRoute(dir, rootPkg, projectPkg, cfg, g, r, extend)
 			if err != nil {
 				return err
 			}
@@ -36,7 +36,7 @@ func genLogic(dir, rootPkg, projectPkg string, cfg *config.Config, api *spec.Api
 	return nil
 }
 
-func genLogicByRoute(dir, rootPkg, projectPkg string, cfg *config.Config, group spec.Group, route spec.Route) error {
+func genLogicByRoute(dir, rootPkg, projectPkg string, cfg *config.Config, group spec.Group, route spec.Route, extend string) error {
 	logic := getLogicName(route)
 	goFile, err := format.FileNamingFormat(cfg.NamingFormat, logic)
 	if err != nil {
@@ -96,6 +96,7 @@ func genLogicByRoute(dir, rootPkg, projectPkg string, cfg *config.Config, group 
 			"doc":          getDoc(route.JoinedDoc()),
 			"projectPkg":   projectPkg,
 			"version":      version.BuildVersion,
+			"extend":       parseToMap(extend),
 		},
 	})
 }

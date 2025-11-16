@@ -41,7 +41,7 @@ service hello-api {
 	require.NoError(t, err)
 
 	// Parse and generate the API files using the correct function signature
-	err = DoGenProject(apiFile, tempDir, "gozero", false)
+	err = DoGenProject(apiFile, tempDir, "gozero", false, "")
 	require.NoError(t, err)
 
 	// Define expected files and their comment types
@@ -125,7 +125,7 @@ service hello-api {
 	require.NoError(t, err)
 
 	// Generate the API files using the correct function signature
-	err = DoGenProject(apiFile, tempDir, "gozero", false)
+	err = DoGenProject(apiFile, tempDir, "gozero", false, "")
 	require.NoError(t, err)
 
 	// Check the routes file specifically

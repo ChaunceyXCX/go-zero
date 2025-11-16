@@ -42,6 +42,8 @@ var (
 	VarBoolWithTest bool
 	// VarBoolTypeGroup describes whether to group types.
 	VarBoolTypeGroup bool
+	// VarStringExtend describes the extended params.
+	VarStringExtend string
 )
 
 // GoCommand gen go project files from command line
@@ -53,6 +55,7 @@ func GoCommand(_ *cobra.Command, _ []string) error {
 	remote := VarStringRemote
 	branch := VarStringBranch
 	withTest := VarBoolWithTest
+	extend := VarStringExtend
 	if len(remote) > 0 {
 		repo, _ := util.CloneIntoGitHome(remote, branch)
 		if len(repo) > 0 {
@@ -70,16 +73,16 @@ func GoCommand(_ *cobra.Command, _ []string) error {
 		return errors.New("missing -dir")
 	}
 
-	return DoGenProject(apiFile, dir, namingStyle, withTest)
+	return DoGenProject(apiFile, dir, namingStyle, withTest, extend)
 }
 
 // DoGenProject gen go project files with api file
-func DoGenProject(apiFile, dir, style string, withTest bool) error {
-	return DoGenProjectWithModule(apiFile, dir, "", style, withTest)
+func DoGenProject(apiFile, dir, style string, withTest bool, extend string) error {
+	return DoGenProjectWithModule(apiFile, dir, "", style, withTest, extend)
 }
 
 // DoGenProjectWithModule gen go project files with api file using custom module name
-func DoGenProjectWithModule(apiFile, dir, moduleName, style string, withTest bool) error {
+func DoGenProjectWithModule(apiFile, dir, moduleName, style string, withTest bool, extend string) error {
 	api, err := parser.Parse(apiFile)
 	if err != nil {
 		return err
@@ -113,7 +116,7 @@ func DoGenProjectWithModule(apiFile, dir, moduleName, style string, withTest boo
 	logx.Must(genTypes(dir, cfg, api))
 	logx.Must(genRoutes(dir, rootPkg, projectPkg, cfg, api))
 	logx.Must(genHandlers(dir, rootPkg, projectPkg, cfg, api))
-	logx.Must(genLogic(dir, rootPkg, projectPkg, cfg, api))
+	logx.Must(genLogic(dir, rootPkg, projectPkg, cfg, api, extend))
 	logx.Must(genMiddleware(dir, cfg, api))
 	if withTest {
 		logx.Must(genHandlersTest(dir, rootPkg, projectPkg, cfg, api))
