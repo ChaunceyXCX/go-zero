@@ -229,6 +229,13 @@ func (r Route) JoinedDoc() string {
 	return strings.TrimSpace(doc)
 }
 
+func (r Route) GetPermission() string {
+	if r.AtDoc.Properties == nil {
+		return ""
+	}
+	return r.AtDoc.Properties["perm"]
+}
+
 // GetAnnotation returns the value by specified key from @server
 func (r Route) GetAnnotation(key string) string {
 	if r.AtServerAnnotation.Properties == nil {

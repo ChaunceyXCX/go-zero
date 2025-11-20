@@ -76,6 +76,7 @@ type (
 		path    string
 		handler string
 		doc     string
+		perm    string
 	}
 )
 
@@ -271,6 +272,7 @@ func getRoutes(api *spec.ApiSpec) ([]group, error) {
 				path:    r.Path,
 				handler: handler,
 				doc:     r.JoinedDoc(),
+				perm:    r.GetPermission(),
 			})
 		}
 

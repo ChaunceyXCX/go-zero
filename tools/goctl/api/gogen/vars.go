@@ -10,6 +10,8 @@ const (
 	middlewareDir = internal + "middleware"
 	typesDir      = internal + typesPacket
 	groupProperty = "group"
+	modelDir      = "dao/model"
+	utilsDir      = "github.com/ChaunceyXCX/social-cloud/toolkit/utils"
 
-	groupTypeDefault="types"
+	groupTypeDefault = "types"
 )
