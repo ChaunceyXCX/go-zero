@@ -2,6 +2,7 @@ package gogen
 
 import (
 	_ "embed"
+	"encoding/json"
 	"fmt"
 	"path"
 	"strconv"
@@ -47,8 +48,12 @@ func genLogicByRoute(dir, rootPkg, projectPkg string, cfg *config.Config, group 
 	var responseString string
 	var returnString string
 	var requestString string
+	var baseResponseType string
 	if len(route.ResponseTypeName()) > 0 {
 		resp := responseGoTypeName(route, typesPacket)
+		if strings.Contains(resp, "*") {
+			baseResponseType = strings.TrimPrefix(resp, "*")
+		}
 		responseString = "(resp " + resp + ", err error)"
 		returnString = "return"
 	} else {
@@ -85,18 +90,19 @@ func genLogicByRoute(dir, rootPkg, projectPkg string, cfg *config.Config, group 
 		templateFile:    templateFile,
 		builtinTemplate: builtinTemplate,
 		data: map[string]any{
-			"pkgName":      subDir[strings.LastIndex(subDir, "/")+1:],
-			"imports":      imports,
-			"logic":        strings.Title(logic),
-			"function":     strings.Title(strings.TrimSuffix(logic, "Logic")),
-			"responseType": responseString,
-			"returnString": returnString,
-			"request":      requestString,
-			"hasDoc":       len(route.JoinedDoc()) > 0,
-			"doc":          getDoc(route.JoinedDoc()),
-			"projectPkg":   projectPkg,
-			"version":      version.BuildVersion,
-			"extend":       parseToMap(extend),
+			"pkgName":          subDir[strings.LastIndex(subDir, "/")+1:],
+			"imports":          imports,
+			"logic":            strings.Title(logic),
+			"function":         strings.Title(strings.TrimSuffix(logic, "Logic")),
+			"responseType":     responseString,
+			"baseResponseType": baseResponseType,
+			"returnString":     returnString,
+			"request":          requestString,
+			"hasDoc":           len(route.JoinedDoc()) > 0,
+			"doc":              getDoc(route.JoinedDoc()),
+			"projectPkg":       projectPkg,
+			"version":          version.BuildVersion,
+			"extend":           json.Unmarshal([]byte(extend), &map[string]any{}),
 		},
 	})
 }
@@ -123,6 +129,7 @@ func genLogicImports(route spec.Route, parentPkg string) string {
 	}
 	imports = append(imports, fmt.Sprintf("\"%s\"", pathx.JoinPackages(parentPkg, modelDir)))
 	imports = append(imports, fmt.Sprintf("\"%s\"", utilsDir))
+	imports = append(imports, fmt.Sprintf("\"%s\"", errxDir))
 	imports = append(imports, fmt.Sprintf("\"%s/core/logx\"", vars.ProjectOpenSourceURL))
 	return strings.Join(imports, "\n\t")
 }
