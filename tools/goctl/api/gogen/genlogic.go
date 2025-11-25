@@ -81,6 +81,13 @@ func genLogicByRoute(dir, rootPkg, projectPkg string, cfg *config.Config, group 
 		}
 	}
 
+	var extendMap map[string]any
+	// 将变量的地址 (&result) 传递给 Unmarshal
+	err = json.Unmarshal([]byte(extend), &extendMap)
+	if err != nil {
+		return err
+	}
+
 	return genFile(fileGenConfig{
 		dir:             dir,
 		subdir:          subDir,
@@ -102,7 +109,7 @@ func genLogicByRoute(dir, rootPkg, projectPkg string, cfg *config.Config, group 
 			"doc":              getDoc(route.JoinedDoc()),
 			"projectPkg":       projectPkg,
 			"version":          version.BuildVersion,
-			"extend":           json.Unmarshal([]byte(extend), &map[string]any{}),
+			"extend":           extendMap,
 		},
 	})
 }
