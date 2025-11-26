@@ -81,11 +81,18 @@ func genLogicByRoute(dir, rootPkg, projectPkg string, cfg *config.Config, group 
 		}
 	}
 
-	var extendMap map[string]any
+	var extendObj Extend
 	// 将变量的地址 (&result) 传递给 Unmarshal
-	err = json.Unmarshal([]byte(extend), &extendMap)
+	err = json.Unmarshal([]byte(extend), &extendObj)
 	if err != nil {
 		return err
+	}
+	pkgName := subDir[strings.LastIndex(subDir, "/")+1:]
+	var curTable Table
+	for _, table := range extendObj.Tables {
+		if table.BusinessName == pkgName {
+			curTable = table
+		}
 	}
 
 	return genFile(fileGenConfig{
@@ -97,7 +104,7 @@ func genLogicByRoute(dir, rootPkg, projectPkg string, cfg *config.Config, group 
 		templateFile:    templateFile,
 		builtinTemplate: builtinTemplate,
 		data: map[string]any{
-			"pkgName":          subDir[strings.LastIndex(subDir, "/")+1:],
+			"pkgName":          pkgName,
 			"imports":          imports,
 			"logic":            strings.Title(logic),
 			"function":         strings.Title(strings.TrimSuffix(logic, "Logic")),
@@ -109,7 +116,7 @@ func genLogicByRoute(dir, rootPkg, projectPkg string, cfg *config.Config, group 
 			"doc":              getDoc(route.JoinedDoc()),
 			"projectPkg":       projectPkg,
 			"version":          version.BuildVersion,
-			"extend":           extendMap,
+			"extend":           curTable,
 		},
 	})
 }

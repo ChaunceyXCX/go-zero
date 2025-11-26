@@ -24,6 +24,20 @@ var (
 	sseHandlerTemplate string
 )
 
+type Table struct {
+	BusinessName string              `json:"businessname"`
+	ClassName    string              `json:"className"`
+	ModelName    string              `json:"modelName"`
+	PKField      string              `json:"pkField"`
+	FunctionName string              `json:"functionName"`
+	TableComment string              `json:"tableComment"`
+	QueryColumns []map[string]string `json:"queryColumns"`
+}
+type Extend struct {
+	ModelPrefix string  `json:"modelPrefix"`
+	Tables      []Table `json:"tables"`
+}
+
 func genHandler(dir, rootPkg, projectPkg string, cfg *config.Config, group spec.Group, route spec.Route, extend string) error {
 	handler := getHandlerName(route)
 	handlerPath := getHandlerFolderPath(group, route)
@@ -46,11 +60,17 @@ func genHandler(dir, rootPkg, projectPkg string, cfg *config.Config, group spec.
 		templateFile = sseHandlerTemplateFile
 	}
 
-	var extendMap map[string]any
+	var extendObj Extend
 	// 将变量的地址 (&result) 传递给 Unmarshal
-	err = json.Unmarshal([]byte(extend), &extendMap)
+	err = json.Unmarshal([]byte(extend), &extendObj)
 	if err != nil {
 		return err
+	}
+	var curTable Table
+	for _, table := range extendObj.Tables {
+		if table.BusinessName == pkgName {
+			curTable = table
+		}
 	}
 
 	return genFile(fileGenConfig{
@@ -76,7 +96,7 @@ func genHandler(dir, rootPkg, projectPkg string, cfg *config.Config, group spec.
 			"Doc":            getDoc(route.JoinedDoc()),
 			"projectPkg":     projectPkg,
 			"version":        version.BuildVersion,
-			"extend":         extendMap,
+			"extend":         curTable,
 		},
 	})
 }
@@ -101,6 +121,10 @@ func genHandlerImports(group spec.Group, route spec.Route, parentPkg string) str
 	sse := group.GetAnnotation("sse")
 	if len(route.RequestTypeName()) > 0 || sse == "true" {
 		imports = append(imports, fmt.Sprintf("\"%s\"\n", pathx.JoinPackages(parentPkg, typesDir)))
+	}
+
+	if route.Handler == "Export" {
+		imports = append(imports, fmt.Sprintf("\"%s\"", pathx.JoinPackages(parentPkg, utilsDir)))
 	}
 
 	return strings.Join(imports, "\n\t")
