@@ -115,7 +115,7 @@ func DoGenProjectWithModule(apiFile, dir, moduleName, style string, withTest boo
 	logx.Must(genServiceContext(dir, rootPkg, projectPkg, cfg, api))
 	logx.Must(genTypes(dir, cfg, api))
 	logx.Must(genRoutes(dir, rootPkg, projectPkg, cfg, api))
-	logx.Must(genHandlers(dir, rootPkg, projectPkg, cfg, api))
+	logx.Must(genHandlers(dir, rootPkg, projectPkg, cfg, api, extend))
 	logx.Must(genLogic(dir, rootPkg, projectPkg, cfg, api, extend))
 	logx.Must(genMiddleware(dir, cfg, api))
 	if withTest {

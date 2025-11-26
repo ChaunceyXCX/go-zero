@@ -2,6 +2,7 @@ package gogen
 
 import (
 	_ "embed"
+	"encoding/json"
 	"fmt"
 	"path"
 	"strings"
@@ -23,7 +24,7 @@ var (
 	sseHandlerTemplate string
 )
 
-func genHandler(dir, rootPkg, projectPkg string, cfg *config.Config, group spec.Group, route spec.Route) error {
+func genHandler(dir, rootPkg, projectPkg string, cfg *config.Config, group spec.Group, route spec.Route, extend string) error {
 	handler := getHandlerName(route)
 	handlerPath := getHandlerFolderPath(group, route)
 	pkgName := handlerPath[strings.LastIndex(handlerPath, "/")+1:]
@@ -43,6 +44,13 @@ func genHandler(dir, rootPkg, projectPkg string, cfg *config.Config, group spec.
 	if sse == "true" {
 		builtinTemplate = sseHandlerTemplate
 		templateFile = sseHandlerTemplateFile
+	}
+
+	var extendMap map[string]any
+	// 将变量的地址 (&result) 传递给 Unmarshal
+	err = json.Unmarshal([]byte(extend), &extendMap)
+	if err != nil {
+		return err
 	}
 
 	return genFile(fileGenConfig{
@@ -68,14 +76,15 @@ func genHandler(dir, rootPkg, projectPkg string, cfg *config.Config, group spec.
 			"Doc":            getDoc(route.JoinedDoc()),
 			"projectPkg":     projectPkg,
 			"version":        version.BuildVersion,
+			"extend":         extendMap,
 		},
 	})
 }
 
-func genHandlers(dir, rootPkg, projectPkg string, cfg *config.Config, api *spec.ApiSpec) error {
+func genHandlers(dir, rootPkg, projectPkg string, cfg *config.Config, api *spec.ApiSpec, extend string) error {
 	for _, group := range api.Service.Groups {
 		for _, route := range group.Routes {
-			if err := genHandler(dir, rootPkg, projectPkg, cfg, group, route); err != nil {
+			if err := genHandler(dir, rootPkg, projectPkg, cfg, group, route, extend); err != nil {
 				return err
 			}
 		}
