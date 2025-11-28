@@ -124,7 +124,7 @@ func genHandlerImports(group spec.Group, route spec.Route, parentPkg string) str
 	}
 
 	if route.Handler == "Export" {
-		imports = append(imports, fmt.Sprintf("\"%s\"", pathx.JoinPackages(parentPkg, utilsDir)))
+		imports = append(imports, fmt.Sprintf("\"%s\"", utilsDir))
 	}
 
 	return strings.Join(imports, "\n\t")
